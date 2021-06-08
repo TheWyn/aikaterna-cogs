@@ -22,18 +22,14 @@ class ServerLimit:
         chan = self.get_default_channel_or_other(server,
                                                  discord.ChannelType.text,
                                                  send_messages=True)
-        me = server.me
-        server_owner = server.owner
-        msg = "I can only join servers which have more than 25 members. "\
-        + "Please try again later when the server is larger."
         if len(server.members) <= 25:
-            if chan is not None:
-                if chan.permissions_for(me).send_messages:
-                    await self.bot.send_message(chan, msg)
-                    await self.bot.leave_server(server)
-                else:
-                    await self._message(server)
-                    await self.bot.send_message(server_owner, msg)
+            me = server.me
+            server_owner = server.owner
+            msg = "I can only join servers which have more than 25 members. "\
+            + "Please try again later when the server is larger."
+            if chan is not None and chan.permissions_for(me).send_messages:
+                await self.bot.send_message(chan, msg)
+                await self.bot.leave_server(server)
             else:
                 await self._message(server)
                 await self.bot.send_message(server_owner, msg)
@@ -54,9 +50,10 @@ class ServerLimit:
             channel = server.default_channel
         except Exception:
             channel = None
-        if channel is not None:
-            if channel.permissions_for(server.me).is_superset(perms):
-                return channel
+        if channel is not None and channel.permissions_for(server.me).is_superset(
+            perms
+        ):
+            return channel
 
         chan_list = [c for c in sorted(server.channels,
                                        key=lambda ch: ch.position)

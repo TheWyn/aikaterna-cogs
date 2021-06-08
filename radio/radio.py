@@ -137,10 +137,10 @@ class Radio:
             self.players[server.id].start()
 
     async def play_stream(self, ctx, url):
-        server = ctx.message.server
-        channel = ctx.message.author.voice_channel
         if not ctx.message.channel.is_private:
             check = True
+            server = ctx.message.server
+            channel = ctx.message.author.voice_channel
             if not await self.voice_connected(server):
                 check = await self.join_voice_channel(channel)
             if check:

@@ -24,7 +24,7 @@ class ModClean:
 
         try:
             async for m in self.bot.logs_from(modchannel, 100):
-                if not (m.author == ctx.message.server.me):
+                if m.author != ctx.message.server.me:
                     continue
                 elif InvLink.search(m.content) is None:
                     continue

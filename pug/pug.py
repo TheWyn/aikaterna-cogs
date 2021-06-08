@@ -53,9 +53,11 @@ class Pug:
                 if bonus == 1808:  # 1808 is Legion prismatic socket bonus
                     sockets += 1
 
-            if item in ["neck", "finger1", "finger2"]:
-                if player_dictionary["items"][item]["context"] == "trade-skill":
-                    sockets += 1
+            if (
+                item in ["neck", "finger1", "finger2"]
+                and player_dictionary["items"][item]["context"] == "trade-skill"
+            ):
+                sockets += 1
 
             for ttip in player_dictionary["items"][item]["tooltipParams"]:
                 if item in "mainHand" or item in "offHand":  # Ignore Relic
