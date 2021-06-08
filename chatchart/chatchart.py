@@ -25,8 +25,8 @@ class ChatChart:
         sizes = [x[1] for x in top]
         labels = ["{} {:g}%".format(x[0], x[1]) for x in top]
         if len(top) >= 20:
-            sizes = sizes + [others]
-            labels = labels + ["Others {:g}%".format(others)]
+            sizes += [others]
+            labels += ["Others {:g}%".format(others)]
         if len(channel.name) >= 19:
             channel_name = '{}...'.format(channel.name[:19])
         else:
@@ -54,11 +54,11 @@ class ChatChart:
         e = discord.Embed(description="Loading...", colour=0x00ccff)
         e.set_thumbnail(url="https://i.imgur.com/vSp4xRk.gif")
         em = await self.bot.say(embed=e)
-		
+
         if channel is None:
             channel = ctx.message.channel
         history = []
-        if not channel.permissions_for(ctx.message.author).read_messages == True:
+        if channel.permissions_for(ctx.message.author).read_messages != True:
             await self.bot.delete_message(em)
             return await self.bot.say("You're not allowed to access that channel.")
         try:
@@ -81,8 +81,7 @@ class ChatChart:
                 msg_data['users'][whole_name]['msgcount'] += 1
                 msg_data['total count'] += 1
             else:
-                msg_data['users'][whole_name] = {}
-                msg_data['users'][whole_name]['msgcount'] = 1
+                msg_data['users'][whole_name] = {'msgcount': 1}
                 msg_data['total count'] += 1
 
         for usr in msg_data['users']:

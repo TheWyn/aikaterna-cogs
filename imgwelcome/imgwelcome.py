@@ -179,9 +179,7 @@ class ImgWelcome:
         return image_object
 
     async def _circle_border(self, circle_img_size: tuple):
-        border_size = []
-        for i in range(len(circle_img_size)):
-            border_size.append(circle_img_size[0] + 8)
+        border_size = [circle_img_size[0] + 8 for _ in range(len(circle_img_size))]
         return tuple(border_size)
 
     async def _data_check(self, ctx):
@@ -231,18 +229,14 @@ class ImgWelcome:
 
     def _get_suffix(self, num):
         suffixes = {1: 'st', 2: 'nd', 3: 'rd'}
-        if 10 <= num % 100 <= 20:
-            suffix = 'th'
-        else:
-            suffix = suffixes.get(num % 10, 'th')
-        return suffix
+        return 'th' if 10 <= num % 100 <= 20 else suffixes.get(num % 10, 'th')
 
     def _hex_to_rgb(self, hex_num: str, a: int):
         h = hex_num.lstrip('#')
 
         # if only 3 characters are given
         if len(str(h)) == 3:
-            expand = ''.join([x*2 for x in str(h)])
+            expand = ''.join(x*2 for x in str(h))
             h = expand
 
         colors = [int(h[i:i+2], 16) for i in (0, 2, 4)]
@@ -547,7 +541,6 @@ class ImgWelcome:
         self.settings[server.id]["FONT"]["SERVER_FONT"]["SIZE"] = size
         await self.save_settings()
         await self.bot.say("Server text font changed to: {}".format(font_name[:-4]))
-        pass
 
     @imgwelcome_font.command(pass_context=True, name='welcome', no_pm=True)
     async def fontg_welcome(self, ctx, font_name: str, size: int=None):
@@ -572,7 +565,6 @@ class ImgWelcome:
         self.settings[server.id]["FONT"]["WELCOME_FONT"]["SIZE"] = size
         await self.save_settings()
         await self.bot.say("Welcome font changed to: {}".format(font_name[:-4]))
-        pass
 
     @imgwelcome.command(name="version", pass_context=True, hidden=True)
     async def imagewelcomeset_version(self):

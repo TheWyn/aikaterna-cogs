@@ -69,17 +69,17 @@ class Seen:
             await self.bot.say('{}'.format(message))
 
     async def on_message(self, message):
-        if not message.channel.is_private and self.bot.user.id != message.author.id:
-            if not any(message.content.startswith(n) for n in self.bot.settings.prefixes):
-                server = message.server
-                author = message.author
-                ts = message.timestamp.timestamp()
-                data = {}
-                data['TIMESTAMP'] = ts
-                if server.id not in self.seen:
-                    self.seen[server.id] = {}
-                self.seen[server.id][author.id] = data
-                self.new_data = True
+        if message.channel.is_private or self.bot.user.id == message.author.id:
+            return
+        if not any(message.content.startswith(n) for n in self.bot.settings.prefixes):
+            server = message.server
+            author = message.author
+            ts = message.timestamp.timestamp()
+            data = {'TIMESTAMP': ts}
+            if server.id not in self.seen:
+                self.seen[server.id] = {}
+            self.seen[server.id][author.id] = data
+            self.new_data = True
 
 
 def check_folder():
@@ -89,21 +89,14 @@ def check_folder():
 
 
 def check_file():
-    data = {}
-    data['db_version'] = DB_VERSION
+    data = {'db_version': DB_VERSION}
     f = 'data/seen/seen.json'
     if not dataIO.is_valid_json(f):
         print('Creating seen.json...')
         dataIO.save_json(f, data)
     else:
         check = dataIO.load_json(f)
-        if 'db_version' in check:
-            if check['db_version'] < DB_VERSION:
-                data = {}
-                data['db_version'] = DB_VERSION
-                dataIO.save_json(f, data)
-                print('SEEN: Database version too old, resetting!')
-        else:
+        if check['db_version'] < DB_VERSION or 'db_version' not in check:
             data = {}
             data['db_version'] = DB_VERSION
             dataIO.save_json(f, data)

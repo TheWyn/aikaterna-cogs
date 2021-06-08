@@ -84,8 +84,9 @@ class Tools:
 
         msg = "```ini\n"
         msg += "{} [TEXT CHANNELS IN COMMON]:\n\n{}\n\n".format(
-            len(common_t), ", ".join([c.name for c in common_t])
+            len(common_t), ", ".join(c.name for c in common_t)
         )
+
         msg += "{} [TEXT CHANNELS {} HAS ACCESS TO]:\n\n{}\n\n".format(
             len(user_only_t), user.name.upper(), ", ".join(list(user_only_t))
         )
@@ -93,8 +94,9 @@ class Tools:
             len(author_only_t), ", ".join(list(author_only_t))
         )
         msg += "{} [VOICE CHANNELS IN COMMON]:\n\n{}\n\n".format(
-            len(common_v), ", ".join([c.name for c in common_v])
+            len(common_v), ", ".join(c.name for c in common_v)
         )
+
         msg += "{} [VOICE CHANNELS {} HAS ACCESS TO]:\n\n{}\n\n".format(
             len(user_only_v), user.name.upper(), ", ".join(list(user_only_v))
         )
@@ -276,13 +278,14 @@ class Tools:
         repos = dataIO.load_json("data/downloader/repos.json")
         cog_path = (
             lambda x: "\n".join(
-                [
-                    filename
-                    for filename in glob.iglob("data/downloader/**/*.py", recursive=True)
-                    if "{}.py".format(x) == filename[((len("{}.py".format(x))) * -1) :]
-                ]
+                filename
+                for filename in glob.iglob(
+                    "data/downloader/**/*.py", recursive=True
+                )
+                if "{}.py".format(x) == filename[((len("{}.py".format(x))) * -1) :]
             )
         )(cog_name)
+
         if not cog_path:
             await self.bot.say("This is a command that's in a cog that's not published in a repo.")
             return
@@ -313,10 +316,11 @@ class Tools:
         )
 
         if role is None:
-            roles = []
-            for r in ctx.message.server.roles:
-                if rolename.lower() in r.name.lower():
-                    roles.append(r)
+            roles = [
+                r
+                for r in ctx.message.server.roles
+                if rolename.lower() in r.name.lower()
+            ]
 
             if len(roles) == 1:
                 role = roles[0]
@@ -332,16 +336,17 @@ class Tools:
                 response = await self.bot.wait_for_message(
                     author=ctx.message.author, channel=ctx.message.channel, timeout=25
                 )
-                if response is None:
-                    await self.bot.delete_message(m1)
-                    return
-                elif response.content.isdigit():
+                if (
+                    response is None
+                    or response is not None
+                    and response.content.isdigit()
+                ):
                     await self.bot.delete_message(m1)
                     return
                 else:
                     response = int(response.content)
 
-                if response not in range(0, len(roles) + 1):
+                if response not in range(len(roles) + 1):
                     await self.bot.delete_message(m1)
                     return
                 elif response == 0:
@@ -414,11 +419,10 @@ class Tools:
     @checks.mod_or_permissions(manage_messages=True)
     async def userstats(self, ctx, this_server: bool = False):
         """A small amount of user stats."""
-        embeds = {}
         if this_server:
-            members = set([x for x in ctx.message.server.members])
+            members = set(ctx.message.server.members)
         else:
-            members = set([x for x in self.bot.get_all_members()])
+            members = set(self.bot.get_all_members())
 
         items = {
             2: {
@@ -443,10 +447,14 @@ class Tools:
             },
         }
 
-        for item in items:
-            embeds[item] = discord.Embed(
-                description="Users: {}".format(items[item]["users"]), colour=items[item]["colour"]
+        embeds = {
+            item: discord.Embed(
+                description="Users: {}".format(items[item]["users"]),
+                colour=items[item]["colour"],
             )
+            for item in items
+        }
+
         for i, em in enumerate(embeds):
             await self.bot.say(embed=embeds[i])
 
@@ -460,10 +468,11 @@ class Tools:
                 [
                     m.status
                     for m in server.members
-                    if str(m.status) == "online" or str(m.status) == "idle"
+                    if str(m.status) in ["online", "idle"]
                 ]
             )
         )
+
         total_users = str(len(server.members))
         text_channels = [x for x in server.channels if str(x.type) == "text"]
         voice_channels = [x for x in server.channels if str(x.type) == "voice"]
@@ -608,24 +617,16 @@ class Tools:
         server = ctx.message.server
         if not user:
             user = author
-        seen = len(
-            set(
-                [
-                    member.server.name
-                    for member in self.bot.get_all_members()
-                    if member.name == user.name
-                ]
-            )
-        )
+        seen = len({member.server.name for member in self.bot.get_all_members()
+                        if member.name == user.name})
         sharedservers = str(
-            set(
-                [
-                    member.server.name
-                    for member in self.bot.get_all_members()
-                    if member.name == user.name
-                ]
-            )
+            {
+                member.server.name
+                for member in self.bot.get_all_members()
+                if member.name == user.name
+            }
         )
+
         for shared in sharedservers:
             shared = "".strip("'").join(sharedservers).strip("'")
             shared = shared.strip("{").strip("}")
@@ -648,17 +649,8 @@ class Tools:
         roles = [x.name for x in user.roles if x.name != "@everyone"]
         if not roles:
             roles = ["None"]
-        seen = str(
-            len(
-                set(
-                    [
-                        member.server.name
-                        for member in self.bot.get_all_members()
-                        if member.id == user.id
-                    ]
-                )
-            )
-        )
+        seen = str(len({member.server.name for member in self.bot.get_all_members()
+                            if member.id == user.id}))
 
         load = "```\nLoading user info...```"
         waiting = await self.bot.say(load)
@@ -738,7 +730,7 @@ class Tools:
                 await ctx.invoke(self.cinfo, it_is)
             elif type(it_is) == discord.Server:
                 await ctx.invoke(self.sinfo, it_is)
-            elif type(it_is) == discord.User or type(it_is) == discord.Member:
+            elif type(it_is) in [discord.User, discord.Member]:
                 await ctx.invoke(self.uinfo, it_is)
             elif type(it_is) == discord.Role:
                 await ctx.invoke(self.roleinfo, it_is)
@@ -784,8 +776,7 @@ class Tools:
     def _role_from_string(self, server, rolename, roles=None):
         if roles is None:
             roles = server.roles
-        role = discord.utils.find(lambda r: r.name.lower() == rolename.lower(), roles)
-        return role
+        return discord.utils.find(lambda r: r.name.lower() == rolename.lower(), roles)
 
 
 def setup(bot):

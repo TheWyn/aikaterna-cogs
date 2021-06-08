@@ -135,7 +135,16 @@ class Hunting:
             for i, hunter in enumerate(scores, 1):
                 if i > 10:
                     break
-                message += '{:<4}{:<8}{} ({})\n'.format(i, p[hunter]['total'], p[hunter]['author_name'], ', '.join([str(p[hunter]['score'][x]) + ' ' + x.capitalize() + 's' for x in p[hunter]['score']]))
+                message += '{:<4}{:<8}{} ({})\n'.format(
+                    i,
+                    p[hunter]['total'],
+                    p[hunter]['author_name'],
+                    ', '.join(
+                        str(p[hunter]['score'][x]) + ' ' + x.capitalize() + 's'
+                        for x in p[hunter]['score']
+                    ),
+                )
+
             message += '```'
         else:
             message = '**Please shoot something before you can brag about it.**'
@@ -145,10 +154,12 @@ class Hunting:
         if server.id not in self.scores:
             self.scores[server.id] = {}
         if author.id not in self.scores[server.id]:
-            self.scores[server.id][author.id] = {}
-            self.scores[server.id][author.id]['score'] = {}
-            self.scores[server.id][author.id]['total'] = 0
-            self.scores[server.id][author.id]['author_name'] = ''
+            self.scores[server.id][author.id] = {
+                'score': {},
+                'total': 0,
+                'author_name': '',
+            }
+
             for a in list(self.animals.keys()):
                 self.scores[server.id][author.id]['score'][a] = 0
         if avian not in self.scores[server.id][author.id]['score']:
@@ -214,10 +225,12 @@ def check_files():
     f = 'data/hunting/settings.json'
     if not dataIO.is_valid_json(f):
         print('Creating empty settings.json...')
-        data = {}
-        data['hunt_interval_minimum'] = 300
-        data['hunt_interval_maximum'] = 600
-        data['wait_for_bang_timeout'] = 30
+        data = {
+            'hunt_interval_minimum': 300,
+            'hunt_interval_maximum': 600,
+            'wait_for_bang_timeout': 30,
+        }
+
         dataIO.save_json(f, data)
 
     f = 'data/hunting/subscriptions.json'

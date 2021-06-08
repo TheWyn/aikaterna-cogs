@@ -31,10 +31,7 @@ class Wolfram:
                 result = await r.text()
             session.close()
             root = ET.fromstring(result)
-            a = []
-            for pt in root.findall(".//plaintext"):
-                if pt.text:
-                    a.append(pt.text.capitalize())
+            a = [pt.text.capitalize() for pt in root.findall(".//plaintext") if pt.text]
             if len(a) < 1:
                 message = "There is as yet insufficient data for a meaningful answer."
             else:
@@ -67,11 +64,10 @@ def check_folder():
 
 
 def check_file():
-    data = {}
-    data["WOLFRAM_API_KEY"] = False
     f = "data/wolfram/settings.json"
     if not dataIO.is_valid_json(f):
         print("Creating default settings.json...")
+        data = {"WOLFRAM_API_KEY": False}
         dataIO.save_json(f, data)
 
 

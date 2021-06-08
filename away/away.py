@@ -12,29 +12,25 @@ class Away:
         self.data = dataIO.load_json('data/away/away.json')
 
     async def listener(self, message):
-        tmp = {}
         server = message.server
-        if server.id not in self.data:
-            for mention in message.mentions:
-                tmp[mention] = True
-            if message.author.id != self.bot.user.id:
-                for author in tmp:
-                    if author.id in self.data:
-                        try:
-                            avatar = author.avatar_url if author.avatar else author.default_avatar_url
-                            if self.data[author.id]['MESSAGE']:
-                                em = discord.Embed(description=self.data[author.id]['MESSAGE'], color=discord.Color.blue())
-                                em.set_author(name='{} is currently away'.format(author.display_name), icon_url=avatar)
-                            else:
-                                em = discord.Embed(color=discord.Color.blue())
-                                em.set_author(name='{} is currently away'.format(author.display_name), icon_url=avatar)
-                            await self.bot.send_message(message.channel, embed=em)
-                        except:
-                            if self.data[author.id]['MESSAGE']:
-                                msg = '{} is currently away and has set the following message: `{}`'.format(author.display_name, self.data[author.id]['MESSAGE'])
-                            else:
-                                msg = '{} is currently away'.format(author.display_name)
-                            await self.bot.send_message(message.channel, msg)
+        if server.id not in self.data and message.author.id != self.bot.user.id:
+            tmp = {mention: True for mention in message.mentions}
+            for author in tmp:
+                if author.id in self.data:
+                    try:
+                        avatar = author.avatar_url if author.avatar else author.default_avatar_url
+                        if self.data[author.id]['MESSAGE']:
+                            em = discord.Embed(description=self.data[author.id]['MESSAGE'], color=discord.Color.blue())
+                        else:
+                            em = discord.Embed(color=discord.Color.blue())
+                        em.set_author(name='{} is currently away'.format(author.display_name), icon_url=avatar)
+                        await self.bot.send_message(message.channel, embed=em)
+                    except:
+                        if self.data[author.id]['MESSAGE']:
+                            msg = '{} is currently away and has set the following message: `{}`'.format(author.display_name, self.data[author.id]['MESSAGE'])
+                        else:
+                            msg = '{} is currently away'.format(author.display_name)
+                        await self.bot.send_message(message.channel, msg)
 
     @commands.command(pass_context=True, name="away")
     async def _away(self, context, *message: str):
